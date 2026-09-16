@@ -51,7 +51,7 @@
     margin-top: 4px;
   }
 
-  /* Master Central Broadcast Display (Top Banner) */
+  /* Master Central Broadcast Display */
   .master-broadcast {
     width: 100%;
     max-width: 1280px;
@@ -59,7 +59,7 @@
     border: 1px dashed #334155;
     border-radius: 10px;
     padding: 16px 20px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
 
@@ -145,7 +145,7 @@
     border: 1px solid #1e293b;
     border-radius: 10px;
     padding: 15px 20px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -166,13 +166,14 @@
   .control-actions {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
   }
 
   .btn {
     background: #1e293b;
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 9px 18px;
+    padding: 9px 16px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -195,6 +196,17 @@
     background: var(--accent-cyan);
     color: #000;
     box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+  }
+
+  .btn-inspect {
+    background: rgba(255, 0, 123, 0.15);
+    color: var(--accent-magenta);
+    border: 1px solid var(--accent-magenta);
+  }
+
+  .btn-inspect:hover:not(:disabled) {
+    background: var(--accent-magenta);
+    color: #fff;
   }
 
   .btn:disabled {
@@ -267,8 +279,7 @@
   }
 
   .slot.decoupled {
-    opacity: 0.15;
-    pointer-events: none;
+    opacity: 0.2;
   }
 
   .slot-label {
@@ -284,7 +295,7 @@
     aspect-ratio: 2/3;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 6px;
   }
 
@@ -406,6 +417,7 @@
   </div>
   <div class="control-actions">
     <button class="btn" onclick="resetAll()">Reset All</button>
+    <button class="btn btn-inspect" id="btn-inspect-all" onclick="toggleFlipAll()" disabled>Flip All Cards (Inspect Board)</button>
     <button class="btn btn-primary" id="btn-next" onclick="stepGlobalProtocol()" disabled>Confirm Initial Positions</button>
   </div>
 </section>
@@ -444,25 +456,25 @@
 </main>
 
 <script>
-  // Configuration for cards per chamber
-  // Room A & C target Even positions (index 1 & 3, POS 2 & POS 4)
-  // Room B targets Odd position (index 2, POS 3)
   const ROOMS = {
     'A': {
       name: 'Alice',
       cards: ['|00⟩', '|01⟩', '|10⟩', '|01⟩', '|11⟩'],
+      flipped: [false, false, false, false, false],
       targetKet: '|01⟩',
       probe: null
     },
     'B': {
       name: 'Bob',
       cards: ['|01⟩', '|00⟩', '|11⟩', '|10⟩', '|00⟩'],
+      flipped: [false, false, false, false, false],
       targetKet: '|11⟩',
       probe: null
     },
     'C': {
       name: 'Charlie',
       cards: ['|10⟩', '|00⟩', '|01⟩', '|00⟩', '|10⟩'],
+      flipped: [false, false, false, false, false],
       targetKet: '|00⟩',
       probe: null
     }
@@ -490,17 +502,17 @@
     {
       title: "Phase 3: Edge Decoupling (Positions 1 & 5 Inactive)",
       desc: "Peripheral states are discarded. Positions 1 & 5 are shut down; any probes on edges shift inward.",
-      btn: "Central Broadcast Transmission"
+      btn: "Broadcast Predictions First"
     },
     {
-      title: "Phase 4: CENTRAL SCREEN REVEAL (Screen Speaks First)",
-      desc: "Look at the Central Broadcast Screen above! The 3 answers are broadcast BEFORE anyone touches their card.",
-      btn: "Collapse & Reveal Cards"
+      title: "Phase 4: CENTRAL SCREEN REVEAL (Prediction Announced)",
+      desc: "Look above: All 3 states are broadcast while cards are face-down! Click chosen cards to flip them, or click 'Flip Chosen Cards'.",
+      btn: "Flip Chosen Cards"
     },
     {
-      title: "Phase 5: Wavefunction Collapse Complete",
-      desc: "All cards are flipped simultaneously. Verify that Alice, Bob, and Charlie match the broadcast 100%.",
-      btn: "Simulation Finished"
+      title: "Phase 5: Inspection Mode",
+      desc: "You can click on ANY card (or use 'Flip All') to inspect what was hidden at every position.",
+      btn: "Simulation Complete"
     }
   ];
 
@@ -513,6 +525,7 @@
       room.cards.forEach((ket, idx) => {
         const isDecoupled = decoupledEdges && (idx === 0 || idx === 4);
         const isProbeHere = room.probe === idx;
+        const isFlipped = room.flipped[idx];
 
         const slot = document.createElement('div');
         slot.className = `slot ${isDecoupled ? 'decoupled' : ''} ${isProbeHere ? 'active-probe' : ''}`;
@@ -520,7 +533,7 @@
 
         slot.innerHTML = `
           <div class="slot-label">P${idx + 1}</div>
-          <div class="card" id="card-${rKey}-${idx}">
+          <div class="card ${isFlipped ? 'is-flipped' : ''}" id="card-${rKey}-${idx}">
             <div class="card-face card-back"></div>
             <div class="card-face card-front">
               <span class="ket">${ket}</span>
@@ -539,16 +552,21 @@
   }
 
   function handleSlotClick(roomKey, idx) {
-    if (decoupledEdges && (idx === 0 || idx === 4)) return;
-    if (currentStep >= 4) return; // Locked once prediction is revealed
-
     const room = ROOMS[roomKey];
 
-    // Phase 0: Free placement
+    // During Phase 4 or 5 (Inspection Mode): Clicking ANY card flips it over!
+    if (currentStep >= 4) {
+      room.flipped[idx] = !room.flipped[idx];
+      initTracks();
+      return;
+    }
+
+    // Movement / Placement Rules
+    if (decoupledEdges && (idx === 0 || idx === 4)) return;
+
     if (currentStep === 0) {
       room.probe = idx;
     } else {
-      // Movement phases: allow adjacent step
       if (room.probe !== null && Math.abs(room.probe - idx) === 1) {
         room.probe = idx;
       }
@@ -559,14 +577,18 @@
 
   function checkStepEligibility() {
     const btn = document.getElementById('btn-next');
-    // For Phase 0, all 3 probes must be placed before advancing
+    const inspectBtn = document.getElementById('btn-inspect-all');
+
     if (currentStep === 0) {
       const allPlaced = ROOMS['A'].probe !== null && ROOMS['B'].probe !== null && ROOMS['C'].probe !== null;
       btn.disabled = !allPlaced;
-    } else if (currentStep === 5) {
-      btn.disabled = true;
+      inspectBtn.disabled = true;
+    } else if (currentStep >= 4) {
+      btn.disabled = currentStep === 5;
+      inspectBtn.disabled = false;
     } else {
       btn.disabled = false;
+      inspectBtn.disabled = true;
     }
   }
 
@@ -577,45 +599,56 @@
       currentStep = 2;
     } else if (currentStep === 2) {
       currentStep = 3;
-      // Decouple outer edge cards 1 and 5
       decoupledEdges = true;
       ['A', 'B', 'C'].forEach(rKey => {
         if (ROOMS[rKey].probe === 0) ROOMS[rKey].probe = 1;
         if (ROOMS[rKey].probe === 4) ROOMS[rKey].probe = 3;
       });
     } else if (currentStep === 3) {
-      // Transition to Phase 4: SCREEN REVEALS FIRST
+      // Transition to Phase 4: Screen reveals predictions FIRST
       currentStep = 4;
 
       // Parity resolution guarantees:
-      // Room A & C land on even index (1 or 3 -> POS 2 or POS 4)
       if (ROOMS['A'].probe === 2) ROOMS['A'].probe = 1;
       if (ROOMS['C'].probe === 2) ROOMS['C'].probe = 3;
-      // Room B lands on odd index (2 -> POS 3)
       ROOMS['B'].probe = 2;
 
-      // Broadcast Screen locks in and reveals BEFORE cards flip
-      document.getElementById('broadcast-status').innerText = 'LIVE BROADCAST CONFIRMED';
+      // Display predictions on the master screen
+      document.getElementById('broadcast-status').innerText = 'PREDICTIONS BROADCAST LIVE';
       document.getElementById('broadcast-status').classList.add('live');
 
       ['A', 'B', 'C'].forEach(rKey => {
-        const predCard = document.getElementById(`card-pred-${rKey}`);
-        const predVal = document.getElementById(`ket-pred-${rKey}`);
-        predCard.classList.add('revealed');
-        predVal.innerText = ROOMS[rKey].targetKet;
+        document.getElementById(`card-pred-${rKey}`).classList.add('revealed');
+        document.getElementById(`ket-pred-${rKey}`).innerText = ROOMS[rKey].targetKet;
       });
 
     } else if (currentStep === 4) {
-      // Phase 5: CARDS FLIP OVER AFTERWARD
+      // Phase 5: Flip the chosen cards
       currentStep = 5;
       ['A', 'B', 'C'].forEach(rKey => {
         const pIdx = ROOMS[rKey].probe;
-        const targetCard = document.getElementById(`card-${rKey}-${pIdx}`);
-        if (targetCard) targetCard.classList.add('is-flipped');
+        if (pIdx !== null) {
+          ROOMS[rKey].flipped[pIdx] = true;
+        }
       });
     }
 
     updateHeaderUI();
+    initTracks();
+  }
+
+  function toggleFlipAll() {
+    // Check if any card is unflipped
+    let anyUnflipped = false;
+    ['A', 'B', 'C'].forEach(k => {
+      if (ROOMS[k].flipped.some(f => !f)) anyUnflipped = true;
+    });
+
+    ['A', 'B', 'C'].forEach(k => {
+      ROOMS[k].flipped = ROOMS[k].flipped.map(() => anyUnflipped);
+    });
+
+    document.getElementById('btn-inspect-all').innerText = anyUnflipped ? "Hide All Cards" : "Flip All Cards (Inspect Board)";
     initTracks();
   }
 
@@ -631,18 +664,19 @@
     decoupledEdges = false;
     ['A', 'B', 'C'].forEach(k => {
       ROOMS[k].probe = null;
+      ROOMS[k].flipped = [false, false, false, false, false];
       document.getElementById(`card-pred-${k}`).classList.remove('revealed');
       document.getElementById(`ket-pred-${k}`).innerText = '|??⟩';
     });
 
     document.getElementById('broadcast-status').innerText = 'Awaiting Synchronous Calibration';
     document.getElementById('broadcast-status').classList.remove('live');
+    document.getElementById('btn-inspect-all').innerText = "Flip All Cards (Inspect Board)";
 
     updateHeaderUI();
     initTracks();
   }
 
-  // Initial load
   initTracks();
 </script>
 </body>
