@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quantum Superposition Workbench — 3 Simultaneous Chambers</title>
+<title>Quantum Superposition Simulation | Simultaneous 3-Room Engine</title>
 <style>
   :root {
     --bg-dark: #070b12;
     --panel-bg: #0f172a;
-    --card-slot-bg: #1e293b;
     --accent-cyan: #00f0ff;
     --accent-magenta: #ff007b;
     --accent-green: #00ff88;
@@ -61,6 +60,12 @@
     padding: 16px 20px;
     margin-bottom: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: border-color 0.4s ease;
+  }
+
+  .master-broadcast.active-transmission {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
   }
 
   .broadcast-header {
@@ -84,17 +89,18 @@
     border-radius: 12px;
     background: #1e293b;
     color: var(--text-muted);
+    transition: all 0.3s ease;
   }
 
   .broadcast-status.live {
     background: rgba(0, 240, 255, 0.2);
     color: var(--accent-cyan);
     border: 1px solid var(--accent-cyan);
-    animation: blink 1.5s infinite;
+    animation: blink 1.2s infinite;
   }
 
   @keyframes blink {
-    50% { opacity: 0.5; }
+    50% { opacity: 0.4; }
   }
 
   .broadcast-grid {
@@ -109,12 +115,13 @@
     border: 1px solid #1e293b;
     border-radius: 8px;
     padding: 12px;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .pred-card.revealed {
     border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    transform: translateY(-2px);
   }
 
   .pred-card span {
@@ -127,14 +134,15 @@
   }
 
   .pred-card .ket-value {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 800;
-    color: #475569;
+    color: #334155;
+    transition: all 0.4s ease;
   }
 
   .pred-card.revealed .ket-value {
     color: #fff;
-    text-shadow: 0 0 10px var(--accent-cyan);
+    text-shadow: 0 0 12px var(--accent-cyan);
   }
 
   /* Global Synchronous Protocol Controls */
@@ -166,14 +174,13 @@
   .control-actions {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
   }
 
   .btn {
     background: #1e293b;
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 9px 16px;
+    padding: 10px 20px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -196,17 +203,6 @@
     background: var(--accent-cyan);
     color: #000;
     box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
-  }
-
-  .btn-inspect {
-    background: rgba(255, 0, 123, 0.15);
-    color: var(--accent-magenta);
-    border: 1px solid var(--accent-magenta);
-  }
-
-  .btn-inspect:hover:not(:disabled) {
-    background: var(--accent-magenta);
-    color: #fff;
   }
 
   .btn:disabled {
@@ -279,7 +275,7 @@
   }
 
   .slot.decoupled {
-    opacity: 0.2;
+    opacity: 0.3;
   }
 
   .slot-label {
@@ -295,7 +291,7 @@
     aspect-ratio: 2/3;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 6px;
   }
 
@@ -331,8 +327,14 @@
   .card-front {
     background: linear-gradient(135deg, #0b192e, #132742);
     transform: rotateY(180deg);
-    border: 1px solid var(--accent-cyan);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Target Highlight for Selected Slot */
+  .slot.active-probe .card-front {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+    background: linear-gradient(135deg, #062b46, #0e3d64);
   }
 
   .card-front .ket {
@@ -384,13 +386,13 @@
 
 <header>
   <h1>Quantum Superposition Workbench</h1>
-  <p>Simultaneous 3-Chamber Interactive Parity Simulator</p>
+  <p>Simultaneous 3-Chamber Parity Engine</p>
 </header>
 
 <!-- Central Broadcast / Prediction Screen -->
-<section class="master-broadcast">
+<section class="master-broadcast" id="master-broadcast">
   <div class="broadcast-header">
-    <div class="broadcast-title">Central Video Transmission Screen</div>
+    <div class="broadcast-title">Central Broadcast Screen</div>
     <div class="broadcast-status" id="broadcast-status">Awaiting Synchronous Calibration</div>
   </div>
   <div class="broadcast-grid">
@@ -417,7 +419,6 @@
   </div>
   <div class="control-actions">
     <button class="btn" onclick="resetAll()">Reset All</button>
-    <button class="btn btn-inspect" id="btn-inspect-all" onclick="toggleFlipAll()" disabled>Flip All Cards (Inspect Board)</button>
     <button class="btn btn-primary" id="btn-next" onclick="stepGlobalProtocol()" disabled>Confirm Initial Positions</button>
   </div>
 </section>
@@ -501,17 +502,12 @@
     },
     {
       title: "Phase 3: Edge Decoupling (Positions 1 & 5 Inactive)",
-      desc: "Peripheral states are discarded. Positions 1 & 5 are shut down; any probes on edges shift inward.",
-      btn: "Broadcast Predictions First"
+      desc: "Peripheral states are discarded. Positions 1 & 5 are shut down; probes on edges shift inward.",
+      btn: "Transmit Final Measurement Prediction"
     },
     {
-      title: "Phase 4: CENTRAL SCREEN REVEAL (Prediction Announced)",
-      desc: "Look above: All 3 states are broadcast while cards are face-down! Click chosen cards to flip them, or click 'Flip Chosen Cards'.",
-      btn: "Flip Chosen Cards"
-    },
-    {
-      title: "Phase 5: Inspection Mode",
-      desc: "You can click on ANY card (or use 'Flip All') to inspect what was hidden at every position.",
+      title: "Phase 4: PREDICTION REVEALED & SIMULTANEOUS COLLAPSE",
+      desc: "The Central Broadcast announced all 3 states. All cards flip automatically to verify the entire board!",
       btn: "Simulation Complete"
     }
   ];
@@ -554,14 +550,13 @@
   function handleSlotClick(roomKey, idx) {
     const room = ROOMS[roomKey];
 
-    // During Phase 4 or 5 (Inspection Mode): Clicking ANY card flips it over!
+    // If simulation complete, allow clicking any card to inspect or flip back and forth
     if (currentStep >= 4) {
       room.flipped[idx] = !room.flipped[idx];
       initTracks();
       return;
     }
 
-    // Movement / Placement Rules
     if (decoupledEdges && (idx === 0 || idx === 4)) return;
 
     if (currentStep === 0) {
@@ -577,18 +572,13 @@
 
   function checkStepEligibility() {
     const btn = document.getElementById('btn-next');
-    const inspectBtn = document.getElementById('btn-inspect-all');
-
     if (currentStep === 0) {
       const allPlaced = ROOMS['A'].probe !== null && ROOMS['B'].probe !== null && ROOMS['C'].probe !== null;
       btn.disabled = !allPlaced;
-      inspectBtn.disabled = true;
     } else if (currentStep >= 4) {
-      btn.disabled = currentStep === 5;
-      inspectBtn.disabled = false;
+      btn.disabled = true;
     } else {
       btn.disabled = false;
-      inspectBtn.disabled = true;
     }
   }
 
@@ -605,16 +595,17 @@
         if (ROOMS[rKey].probe === 4) ROOMS[rKey].probe = 3;
       });
     } else if (currentStep === 3) {
-      // Transition to Phase 4: Screen reveals predictions FIRST
+      // Climax step:
       currentStep = 4;
 
-      // Parity resolution guarantees:
+      // Parity resolution
       if (ROOMS['A'].probe === 2) ROOMS['A'].probe = 1;
       if (ROOMS['C'].probe === 2) ROOMS['C'].probe = 3;
       ROOMS['B'].probe = 2;
 
-      // Display predictions on the master screen
-      document.getElementById('broadcast-status').innerText = 'PREDICTIONS BROADCAST LIVE';
+      // 1. Reveal predictions on the master screen FIRST
+      document.getElementById('master-broadcast').classList.add('active-transmission');
+      document.getElementById('broadcast-status').innerText = 'LIVE TRANSMISSION CONFIRMED';
       document.getElementById('broadcast-status').classList.add('live');
 
       ['A', 'B', 'C'].forEach(rKey => {
@@ -622,33 +613,16 @@
         document.getElementById(`ket-pred-${rKey}`).innerText = ROOMS[rKey].targetKet;
       });
 
-    } else if (currentStep === 4) {
-      // Phase 5: Flip the chosen cards
-      currentStep = 5;
-      ['A', 'B', 'C'].forEach(rKey => {
-        const pIdx = ROOMS[rKey].probe;
-        if (pIdx !== null) {
-          ROOMS[rKey].flipped[pIdx] = true;
-        }
-      });
+      // 2. Automatically flip ALL cards across all three rooms after a 900ms theatrical pause
+      setTimeout(() => {
+        ['A', 'B', 'C'].forEach(k => {
+          ROOMS[k].flipped = [true, true, true, true, true];
+        });
+        initTracks();
+      }, 900);
     }
 
     updateHeaderUI();
-    initTracks();
-  }
-
-  function toggleFlipAll() {
-    // Check if any card is unflipped
-    let anyUnflipped = false;
-    ['A', 'B', 'C'].forEach(k => {
-      if (ROOMS[k].flipped.some(f => !f)) anyUnflipped = true;
-    });
-
-    ['A', 'B', 'C'].forEach(k => {
-      ROOMS[k].flipped = ROOMS[k].flipped.map(() => anyUnflipped);
-    });
-
-    document.getElementById('btn-inspect-all').innerText = anyUnflipped ? "Hide All Cards" : "Flip All Cards (Inspect Board)";
     initTracks();
   }
 
@@ -669,9 +643,9 @@
       document.getElementById(`ket-pred-${k}`).innerText = '|??⟩';
     });
 
+    document.getElementById('master-broadcast').classList.remove('active-transmission');
     document.getElementById('broadcast-status').innerText = 'Awaiting Synchronous Calibration';
     document.getElementById('broadcast-status').classList.remove('live');
-    document.getElementById('btn-inspect-all').innerText = "Flip All Cards (Inspect Board)";
 
     updateHeaderUI();
     initTracks();
