@@ -1,390 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Quantum Superposition Terminal // Entangled Flank</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --bg: #070a12;
-      --panel: #0d1527;
-      --cyan: #00f0ff;
-      --amber: #ffb800;
-      --green: #00ff66;
-      --text: #f1f5f9;
-      --muted: #64748b;
-      --border: #1e293b;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.4; }
-    header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-    header h1 { font-size: 1.4rem; color: var(--cyan); letter-spacing: 2px; }
-    .subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Superposition Engine — Pure Parity Mechanics</title>
+<style>
+  :root {
+    --bg-dark: #070b12;
+    --panel-bg: #0f172a;
+    --accent-cyan: #00f0ff;
+    --accent-magenta: #ff007b;
+    --accent-green: #00ff88;
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+  }
 
-    /* Telemetry HUD */
-    .broadcast-hud {
-      background: var(--panel);
-      border: 1px solid var(--cyan);
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 16px rgba(0, 240, 255, 0.12);
-    }
-    .hud-title { font-size: 0.85rem; color: var(--amber); text-transform: uppercase; margin-bottom: 8px; }
-    .script-line { font-size: 1.05rem; color: #fff; min-height: 52px; }
-    .cue-note { font-size: 0.8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; }
+  body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
-    /* Chamber Grid */
-    .chamber-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .chamber-box {
-      background: #0a1120;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px;
-      position: relative;
-    }
-    .chamber-head {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-      margin-bottom: 12px;
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
-    .chamber-title { color: var(--cyan); }
+  header { text-align: center; margin-bottom: 20px; }
+  header h1 { font-size: 1.6rem; letter-spacing: 2px; color: var(--accent-cyan); text-transform: uppercase; }
+  header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
 
-    /* Card Track */
-    .node-track {
-      display: flex;
-      gap: 6px;
-      justify-content: space-between;
-      margin: 14px 0;
-    }
-    .node-card {
-      flex: 1;
-      aspect-ratio: 2/3;
-      background: #141e34;
-      border: 1px dashed var(--muted);
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      cursor: pointer;
-      font-size: 0.75rem;
-      text-align: center;
-      transition: all 0.2s ease;
-      padding: 4px 2px;
-    }
-    .node-card.active-marker { border: 2px solid var(--amber); box-shadow: 0 0 10px rgba(255, 184, 0, 0.35); }
-    .node-card.entangled { border: 2px solid var(--green); background: #002e20; color: var(--green); }
-    .node-card.discarded { opacity: 0.15; border-style: none; pointer-events: none; }
-    .marker-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--amber);
-      border-radius: 50%;
-      position: absolute;
-      top: 4px;
-      box-shadow: 0 0 6px var(--amber);
-    }
-    .node-idx { font-size: 0.65rem; color: var(--muted); margin-bottom: 2px; }
-    .node-val { font-weight: bold; font-size: 0.85rem; }
+  /* Master Central Broadcast Display */
+  .master-broadcast {
+    width: 100%; max-width: 1280px; background: #0b1322; border: 1px dashed #334155;
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.4s ease;
+  }
+  .master-broadcast.active-transmission {
+    border-color: var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+  }
+  .broadcast-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .broadcast-title { font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-cyan); }
+  .broadcast-status { font-size: 0.8rem; padding: 3px 10px; border-radius: 12px; background: #1e293b; color: var(--text-muted); }
+  .broadcast-status.live { background: rgba(0, 240, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: 0.4; } }
 
-    /* Readout strip */
-    .hud-readout {
-      background: #060a14;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 8px;
-      font-size: 0.75rem;
-    }
-    .target-callout {
-      margin-top: 4px;
-      color: var(--green);
-      font-weight: bold;
-      display: none;
-    }
+  .broadcast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center; }
+  .pred-card { background: #131e33; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; transition: all 0.4s ease; }
+  .pred-card.revealed { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); transform: translateY(-2px); }
+  .pred-card span { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 4px; }
+  .pred-card .ket-value { font-size: 1.5rem; font-weight: 800; color: #334155; }
+  .pred-card.revealed .ket-value { color: #fff; text-shadow: 0 0 12px var(--accent-cyan); }
 
-    /* Controls */
-    .controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    button {
-      background: #1e293b;
-      color: var(--cyan);
-      border: 1px solid var(--cyan);
-      padding: 9px 18px;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    button:hover { background: var(--cyan); color: #000; }
-    button.alt { border-color: var(--muted); color: var(--text); }
-    button.alt:hover { background: var(--muted); color: #fff; }
+  /* Controls */
+  .global-controls {
+    width: 100%; max-width: 1280px; background: #0d1627; border: 1px solid #1e293b;
+    border-radius: 10px; padding: 15px 20px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  }
+  .protocol-info h3 { font-size: 0.95rem; color: var(--accent-cyan); margin-bottom: 4px; }
+  .protocol-info p { font-size: 0.85rem; color: var(--text-muted); }
+  .control-actions { display: flex; gap: 10px; }
+  .btn { background: #1e293b; color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+  .btn:hover:not(:disabled) { background: #334155; border-color: var(--accent-cyan); }
+  .btn-primary { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-cyan); color: #000; box-shadow: 0 0 12px rgba(0, 240, 255, 0.4); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    .audit-strip {
-      margin-top: 16px;
-      background: #0a1120;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 0.75rem;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  </style>
+  /* 3 Chambers */
+  .chambers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 100%; max-width: 1280px; }
+  .chamber { background: var(--panel-bg); border-radius: 10px; border: 1px solid #1e293b; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+  .chamber-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 10px; margin-bottom: 15px; }
+  .chamber-title { font-size: 1rem; font-weight: 700; }
+  .chamber-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; font-weight: 700; }
+  .chamber-a .chamber-badge { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); }
+  .chamber-b .chamber-badge { background: rgba(255, 0, 123, 0.15); color: var(--accent-magenta); }
+  .chamber-c .chamber-badge { background: rgba(0, 255, 136, 0.15); color: var(--accent-green); }
+
+  /* Tracks */
+  .track { display: flex; justify-content: space-between; gap: 8px; margin: 15px 0 25px 0; perspective: 800px; }
+  .slot { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; cursor: pointer; }
+  .slot.decoupled { opacity: 0.2; pointer-events: none; }
+  .slot-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+
+  /* 3D Cards */
+  .card { width: 100%; aspect-ratio: 2/3; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; }
+  .card.is-flipped { transform: rotateY(180deg); }
+  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 6px; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+  .card-back { background: linear-gradient(135deg, #1e293b, #0f172a); color: rgba(255, 255, 255, 0.15); font-size: 1.1rem; box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); }
+  .card-back::after { content: "ψ"; font-family: serif; font-size: 1.4rem; }
+  .card-front { background: linear-gradient(135deg, #0b192e, #132742); transform: rotateY(180deg); border: 1px solid rgba(255, 255, 255, 0.15); }
+  .slot.active-probe .card-front { border-color: var(--accent-cyan); box-shadow: 0 0 14px rgba(0, 240, 255, 0.4); background: linear-gradient(135deg, #062b46, #0e3d64); }
+  .card-front .ket { font-size: 0.85rem; font-weight: bold; color: #fff; }
+
+  /* Probe Indicator */
+  .probe-token { position: absolute; bottom: -18px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); display: none; }
+  .slot.active-probe .probe-token { display: block; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+
+  .chamber-footer { margin-top: auto; font-size: 0.75rem; color: var(--text-muted); text-align: center; background: #0b121e; padding: 8px; border-radius: 6px; border: 1px solid #1a2537; }
+  .chamber-footer strong { color: var(--text-main); }
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>Quantum Superposition Terminal</h1>
-    <div class="subtitle">SYNCHRONIZED BROADCAST TRANSMISSION // THE SPINNING COIN PROTOCOL</div>
-  </header>
+<header>
+  <h1>Quantum Superposition Engine</h1>
+  <p>Authentic Parity Elimination Protocol — No Overwrites</p>
+</header>
 
-  <section class="broadcast-hud">
-    <div class="hud-title">Broadcast Audio Feed & Camera Telemetry</div>
-    <div id="scriptBox" class="script-line">Initializing quantum superposition...</div>
-    <div id="stageBox" class="cue-note">Waiting for participants to seat probes.</div>
-  </section>
-
-  <main class="chamber-grid">
-    <!-- Alice -->
-    <div class="chamber-box" id="boxA">
-      <div class="chamber-head">
-        <span class="chamber-title">CHAMBER A: ALICE</span>
-        <span id="statA" style="color:var(--amber);">SPINNING COIN [SUPERPOSITION]</span>
-      </div>
-      <div class="node-track" id="trackA"></div>
-      <div class="hud-readout">
-        <div>Register Set: 0X Basis</div>
-        <div class="target-callout" id="callA">COLLAPSED: |01⟩ (TARGET) + |04⟩ (FLANK)</div>
-      </div>
-    </div>
-
-    <!-- Bob -->
-    <div class="chamber-box" id="boxB">
-      <div class="chamber-head">
-        <span class="chamber-title">CHAMBER B: BOB</span>
-        <span id="statB" style="color:var(--amber);">SPINNING COIN [SUPERPOSITION]</span>
-      </div>
-      <div class="node-track" id="trackB"></div>
-      <div class="hud-readout">
-        <div>Register Set: 1X Basis</div>
-        <div class="target-callout" id="callB">COLLAPSED: |11⟩ (TARGET) + |14⟩ (FLANK)</div>
-      </div>
-    </div>
-
-    <!-- Charlie -->
-    <div class="chamber-box" id="boxC">
-      <div class="chamber-head">
-        <span class="chamber-title">CHAMBER C: CHARLIE</span>
-        <span id="statC" style="color:var(--amber);">SPINNING COIN [SUPERPOSITION]</span>
-      </div>
-      <div class="node-track" id="trackC"></div>
-      <div class="hud-readout">
-        <div>Register Set: 2X Basis</div>
-        <div class="target-callout" id="callC">COLLAPSED: |23⟩ (TARGET) + |24⟩ (FLANK)</div>
-      </div>
-    </div>
-  </main>
-
-  <section class="controls">
-    <button class="alt" onclick="prevStep()">Previous</button>
-    <button onclick="nextStep()">Advance Protocol</button>
-    <button class="alt" onclick="resetAll()">Reset</button>
-    <button class="alt" onclick="runLiveAudit()">Run 1,000 Audit</button>
-  </section>
-
-  <div class="audit-strip" id="auditStrip">
-    <span>Monte Carlo Status: 1,000 Trials Verified.</span>
-    <span>Invariant: 100% Target Survival Rate</span>
+<section class="master-broadcast" id="master-broadcast">
+  <div class="broadcast-header">
+    <div class="broadcast-title">Central Transmission Screen</div>
+    <div class="broadcast-status" id="broadcast-status">Calibration Idle</div>
   </div>
+  <div class="broadcast-grid">
+    <div class="pred-card" id="card-pred-A"><span>Alice (Room A) Final State</span><div class="ket-value" id="ket-pred-A">|??⟩</div></div>
+    <div class="pred-card" id="card-pred-B"><span>Bob (Room B) Final State</span><div class="ket-value" id="ket-pred-B">|??⟩</div></div>
+    <div class="pred-card" id="card-pred-C"><span>Charlie (Room C) Final State</span><div class="ket-value" id="ket-pred-C">|??⟩</div></div>
+  </div>
+</section>
 
-  <script>
-    const setupData = {
-      A: { target: "|01⟩", flank: "|04⟩", nodes: ["|00⟩", "|04⟩", "|01⟩", "|04⟩", "|05⟩"], marker: 0, prev: null },
-      B: { target: "|11⟩", flank: "|14⟩", nodes: ["|10⟩", "|14⟩", "|11⟩", "|14⟩", "|15⟩"], marker: 2, prev: null },
-      C: { target: "|23⟩", flank: "|24⟩", nodes: ["|20⟩", "|24⟩", "|23⟩", "|24⟩", "|25⟩"], marker: 4, prev: null }
-    };
+<section class="global-controls">
+  <div class="protocol-info">
+    <h3 id="step-title">Phase 0: Superposition Initialization</h3>
+    <p id="step-desc">Click any slot in Room A, B, and C to place each observer's probe freely.</p>
+  </div>
+  <div class="control-actions">
+    <button class="btn" onclick="resetAll()">Reset All</button>
+    <button class="btn btn-primary" id="btn-next" onclick="stepGlobalProtocol()" disabled>Confirm Initial States</button>
+  </div>
+</section>
 
-    let step = 0;
-    let discarded = [false, false, false, false, false];
+<main class="chambers-grid">
+  <article class="chamber chamber-a">
+    <div class="chamber-header"><div class="chamber-title">Chamber A (Alice)</div><div class="chamber-badge">Target: |01⟩</div></div>
+    <div class="track" id="track-A"></div>
+    <div class="chamber-footer">Current Probe: <strong id="probe-state-A">Not Placed</strong></div>
+  </article>
 
-    const scriptFlow = [
-      {
-        text: "Think of a spinning coin. While it spins, it is neither heads nor tails, but a blur of pure possibility. Nothing is fixed. Nothing is confirmed until observation. Place your probe onto ANY card from 1 to 5.",
-        stage: "Participants click any card (1-5) to freely initialize their quantum probe."
-      },
-      {
-        text: "Look at the index of your node (1 to 5). Slide that many steps across the cards, bouncing inward if you hit the ends. The universe shifts... stop.",
-        stage: "Bouncing boundary steps force 100% of participants strictly onto Node 2 or Node 4."
-      },
-      {
-        text: "Nodes 1 and 5 have decayed into vacuum state. Reach out, pick up the outer two cards—Card 1 on your left, Card 5 on your right—and discard them.",
-        stage: "Cards 1 and 5 are completely empty. The circuit reduces cleanly to [2, 3, 4]."
-      },
-      {
-        text: "On your remaining three nodes, slide your marker exactly ONE step inward.",
-        stage: "Nodes 2 and 4 converge symmetrically directly onto Center Node 3."
-      },
-      {
-        text: "Now create quantum entanglement: slide your probe one final step in either direction—left or right, your completely free choice. Discard the unchosen opposite card.",
-        stage: "Participants freely choose Left or Right flank. Opposite card discarded."
-      },
-      {
-        text: "The coin has fallen. The wavefunction has collapsed! Slap your hand down and turn your entangled pair face-up.",
-        stage: "Target (|01⟩, |11⟩, |23⟩) is revealed on the master monitor and matches the participant's hand."
-      }
-    ];
+  <article class="chamber chamber-b">
+    <div class="chamber-header"><div class="chamber-title">Chamber B (Bob)</div><div class="chamber-badge">Target: |11⟩</div></div>
+    <div class="track" id="track-B"></div>
+    <div class="chamber-footer">Current Probe: <strong id="probe-state-B">Not Placed</strong></div>
+  </article>
 
-    function bounceWalk(startNode, steps) {
-      let cur = startNode;
-      let dir = (cur === 0) ? 1 : (cur === 4 ? -1 : (Math.random() < 0.5 ? 1 : -1));
-      for (let s = 0; s < steps; s++) {
-        if (cur === 0) dir = 1;
-        else if (cur === 4) dir = -1;
-        cur += dir;
-      }
-      return cur;
+  <article class="chamber chamber-c">
+    <div class="chamber-header"><div class="chamber-title">Chamber C (Charlie)</div><div class="chamber-badge">Target: |00⟩</div></div>
+    <div class="track" id="track-C"></div>
+    <div class="chamber-footer">Current Probe: <strong id="probe-state-C">Not Placed</strong></div>
+  </article>
+</main>
+
+<script>
+  const ROOMS = {
+    'A': { name: 'Alice', cards: ['|00⟩', '|01⟩', '|10⟩', '|01⟩', '|11⟩'], targetKet: '|01⟩', flipped: [false, false, false, false, false], probe: null },
+    'B': { name: 'Bob', cards: ['|01⟩', '|00⟩', '|11⟩', '|10⟩', '|00⟩'], targetKet: '|11⟩', flipped: [false, false, false, false, false], probe: null },
+    'C': { name: 'Charlie', cards: ['|10⟩', '|00⟩', '|01⟩', '|00⟩', '|10⟩'], targetKet: '|00⟩', flipped: [false, false, false, false, false], probe: null }
+  };
+
+  let decoupledEdges = false;
+  let currentStep = 0;
+
+  const PROTOCOL_STEPS = [
+    {
+      title: "Phase 0: Superposition Initialization",
+      desc: "Freely click any slot in Room A, B, and C to initialize the unobserved probe.",
+      btn: "Confirm Initial Positions"
+    },
+    {
+      title: "Phase 1: 3-Step Quantum Phase Shift",
+      desc: "Interference move: Click adjacent slots to shift each probe 3 times in any direction.",
+      btn: "Confirm Phase Shift"
+    },
+    {
+      title: "Phase 2: Peripheral Edge Inversion",
+      desc: "If any probe is currently on POS 1 or POS 5, click POS 2 or POS 4 to step inward. Others stay in place.",
+      btn: "Lock Inner Register"
+    },
+    {
+      title: "Phase 3: Final Parity Separation",
+      desc: "POS 1 & 5 are decoupled. Alice & Charlie click to make 1 final step (landing on POS 2 or 4). Bob stays on POS 3.",
+      btn: "Broadcast Predictions First"
+    },
+    {
+      title: "Phase 4: PREDICTION BROADCAST & ALL CARDS COLLAPSED",
+      desc: "The Central Broadcast announced all 3 eigenstates first. All 15 cards flip face-up automatically!",
+      btn: "Simulation Complete"
     }
+  ];
 
-    function renderChamber(id) {
-      const ch = setupData[id];
-      const track = document.getElementById("track" + id);
-      track.innerHTML = "";
+  function initTracks() {
+    ['A', 'B', 'C'].forEach(rKey => {
+      const trackEl = document.getElementById(`track-${rKey}`);
+      trackEl.innerHTML = '';
+      const room = ROOMS[rKey];
 
-      ch.nodes.forEach((val, i) => {
-        const card = document.createElement("div");
-        card.className = "node-card";
-        if (discarded[i]) card.classList.add("discarded");
-        if (ch.marker === i && !discarded[i]) card.classList.add("active-marker");
-        
-        if (step === 5 && (ch.marker === i || ch.prev === i)) {
-          card.classList.add("entangled");
-        }
+      room.cards.forEach((ket, idx) => {
+        const isDecoupled = decoupledEdges && (idx === 0 || idx === 4);
+        const isProbeHere = room.probe === idx;
+        const isFlipped = room.flipped[idx];
 
-        card.onclick = () => {
-          if (step === 0) {
-            ch.marker = i;
-            renderAll();
-          }
-        };
+        const slot = document.createElement('div');
+        slot.className = `slot ${isDecoupled ? 'decoupled' : ''} ${isProbeHere ? 'active-probe' : ''}`;
+        slot.onclick = () => handleSlotClick(rKey, idx);
 
-        const idxSpan = document.createElement("div");
-        idxSpan.className = "node-idx";
-        idxSpan.innerText = "NODE " + (i + 1);
-
-        const valSpan = document.createElement("div");
-        valSpan.className = "node-val";
-        valSpan.innerText = (step === 5 || (step >= 2 && discarded[i])) ? val : "[ ? ]";
-
-        card.appendChild(idxSpan);
-        card.appendChild(valSpan);
-
-        if (ch.marker === i && !discarded[i]) {
-          const dot = document.createElement("div");
-          dot.className = "marker-dot";
-          card.appendChild(dot);
-        }
-
-        track.appendChild(card);
+        slot.innerHTML = `
+          <div class="slot-label">POS ${idx + 1}</div>
+          <div class="card ${isFlipped ? 'is-flipped' : ''}" id="card-${rKey}-${idx}">
+            <div class="card-face card-back"></div>
+            <div class="card-face card-front"><span class="ket">${ket}</span></div>
+          </div>
+          <div class="probe-token"></div>
+        `;
+        trackEl.appendChild(slot);
       });
+
+      const label = room.probe !== null ? `POS ${room.probe + 1}` : 'Not Placed';
+      document.getElementById(`probe-state-${rKey}`).innerText = label;
+    });
+
+    checkStepEligibility();
+  }
+
+  function handleSlotClick(roomKey, idx) {
+    const room = ROOMS[roomKey];
+
+    // During Phase 4: allow inspection
+    if (currentStep >= 4) {
+      room.flipped[idx] = !room.flipped[idx];
+      initTracks();
+      return;
     }
 
-    function renderAll() {
-      ["A", "B", "C"].forEach(renderChamber);
-      document.getElementById("scriptBox").innerText = scriptFlow[step].text;
-      document.getElementById("stageBox").innerText = scriptFlow[step].stage;
+    if (decoupledEdges && (idx === 0 || idx === 4)) return;
 
-      const callouts = [document.getElementById("callA"), document.getElementById("callB"), document.getElementById("callC")];
-      callouts.forEach(c => c.style.display = (step === 5 ? "block" : "none"));
-      
-      const statLabels = ["statA", "statB", "statC"];
-      statLabels.forEach(s => {
-        const el = document.getElementById(s);
-        if (step === 0) el.innerText = "SPINNING COIN [SUPERPOSITION]";
-        else if (step < 5) el.innerText = "PHASE EVOLUTION";
-        else el.innerText = "COLLAPSED STATE";
+    if (currentStep === 0) {
+      room.probe = idx;
+    } else {
+      // In steps 1-3, user clicks to move to an adjacent spot
+      if (room.probe !== null && Math.abs(room.probe - idx) === 1) {
+        room.probe = idx;
+      }
+    }
+
+    initTracks();
+  }
+
+  function checkStepEligibility() {
+    const btn = document.getElementById('btn-next');
+    if (currentStep === 0) {
+      btn.disabled = !(ROOMS['A'].probe !== null && ROOMS['B'].probe !== null && ROOMS['C'].probe !== null);
+    } else if (currentStep >= 4) {
+      btn.disabled = true;
+    } else {
+      btn.disabled = false;
+    }
+  }
+
+  function stepGlobalProtocol() {
+    if (currentStep === 0) {
+      currentStep = 1;
+    } else if (currentStep === 1) {
+      currentStep = 2;
+    } else if (currentStep === 2) {
+      currentStep = 3;
+      // Decouple outer edge positions 1 and 5
+      decoupledEdges = true;
+    } else if (currentStep === 3) {
+      // Climax step: NO OVERWRITING OF PROBES!
+      currentStep = 4;
+
+      // 1. Reveal predictions on master broadcast screen FIRST
+      document.getElementById('master-broadcast').classList.add('active-transmission');
+      document.getElementById('broadcast-status').innerText = 'TRANSMISSION CONFIRMED';
+      document.getElementById('broadcast-status').classList.add('live');
+
+      ['A', 'B', 'C'].forEach(rKey => {
+        document.getElementById(`card-pred-${rKey}`).classList.add('revealed');
+        document.getElementById(`ket-pred-${rKey}`).innerText = ROOMS[rKey].targetKet;
       });
-    }
 
-    function nextStep() {
-      if (step >= scriptFlow.length - 1) return;
-      step++;
-
-      if (step === 1) {
-        ["A", "B", "C"].forEach(k => {
-          const start = setupData[k].marker;
-          setupData[k].marker = bounceWalk(start, start + 1);
+      // 2. Automatically flip ALL 15 cards after brief theatrical pause
+      setTimeout(() => {
+        ['A', 'B', 'C'].forEach(k => {
+          ROOMS[k].flipped = [true, true, true, true, true];
         });
-      } else if (step === 2) {
-        discarded[0] = true;
-        discarded[4] = true;
-      } else if (step === 3) {
-        ["A", "B", "C"].forEach(k => {
-          setupData[k].marker = 2;
-        });
-      } else if (step === 4) {
-        ["A", "B", "C"].forEach(k => {
-          setupData[k].prev = 2;
-          const pickLeft = Math.random() < 0.5;
-          setupData[k].marker = pickLeft ? 1 : 3;
-          if (pickLeft) discarded[3] = true;
-          else discarded[1] = true;
-        });
-      }
-
-      renderAll();
+        initTracks();
+      }, 700);
     }
 
-    function prevStep() {
-      if (step <= 0) return;
-      step--;
-      if (step < 2) { discarded[0] = false; discarded[4] = false; }
-      if (step < 4) { discarded[1] = false; discarded[3] = false; }
-      renderAll();
-    }
+    updateHeaderUI();
+    initTracks();
+  }
 
-    function resetAll() {
-      step = 0;
-      discarded = [false, false, false, false, false];
-      setupData.A.marker = 0; setupData.A.prev = null;
-      setupData.B.marker = 2; setupData.B.prev = null;
-      setupData.C.marker = 4; setupData.C.prev = null;
-      renderAll();
-    }
+  function updateHeaderUI() {
+    const s = PROTOCOL_STEPS[currentStep];
+    document.getElementById('step-title').innerText = s.title;
+    document.getElementById('step-desc').innerText = s.desc;
+    document.getElementById('btn-next').innerText = s.btn;
+  }
 
-    function runLiveAudit() {
-      let successes = 0;
-      for (let t = 0; t < 1000; t++) {
-        const start = Math.floor(Math.random() * 5);
-        const afterBounce = bounceWalk(start, start + 1);
-        if (afterBounce === 0 || afterBounce === 4) continue;
-        const flankChoice = Math.random() < 0.5 ? 1 : 3;
-        const pair = [2, flankChoice];
-        if (pair.includes(2)) successes++;
-      }
-      document.getElementById("auditStrip").innerHTML = 
-        `<span style="color:var(--green)">Live Audit: ${successes}/1,000 Verified (100.00%)</span>
-         <span>Collision Rate: 0.00%</span>`;
-    }
+  function resetAll() {
+    currentStep = 0;
+    decoupledEdges = false;
+    ['A', 'B', 'C'].forEach(k => {
+      ROOMS[k].probe = null;
+      ROOMS[k].flipped = [false, false, false, false, false];
+      document.getElementById(`card-pred-${k}`).classList.remove('revealed');
+      document.getElementById(`ket-pred-${k}`).innerText = '|??⟩';
+    });
 
-    renderAll();
-  </script>
+    document.getElementById('master-broadcast').classList.remove('active-transmission');
+    document.getElementById('broadcast-status').innerText = 'Calibration Idle';
+    document.getElementById('broadcast-status').classList.remove('live');
+
+    updateHeaderUI();
+    initTracks();
+  }
+
+  initTracks();
+</script>
 </body>
 </html>
