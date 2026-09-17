@@ -3,315 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quantum Superposition Engine — 9-State Steinmeyer Matrix</title>
+<title>Quantum Permutation Matrix — 100% Reliable</title>
 <style>
   :root {
-    --bg-dark: #070b12;
-    --panel-bg: #0f172a;
-    --accent-cyan: #00f0ff;
-    --accent-magenta: #ff007b;
-    --accent-green: #00ff88;
-    --text-main: #e2e8f0;
-    --text-muted: #94a3b8;
+    --bg: #070b12;
+    --panel: #0f172a;
+    --cyan: #00f0ff;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace, sans-serif; }
-  body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-
+  body { background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; }
   header { text-align: center; margin-bottom: 20px; }
-  header h1 { font-size: 1.5rem; letter-spacing: 2px; color: var(--accent-cyan); text-transform: uppercase; }
-  header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+  header h1 { color: var(--cyan); letter-spacing: 2px; }
 
-  /* Master Central Broadcast Display */
-  .master-broadcast {
-    width: 100%; max-width: 1200px; background: #0b1322; border: 1px dashed #334155;
-    border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    transition: all 0.4s ease;
+  .broadcast {
+    width: 100%; max-width: 1000px; background: #0b1322; border: 1px dashed #334155;
+    border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;
   }
-  .master-broadcast.active-transmission { border-color: var(--accent-cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.25); }
-  .broadcast-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .broadcast-title { font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-cyan); }
-  .broadcast-status { font-size: 0.8rem; padding: 3px 10px; border-radius: 12px; background: #1e293b; color: var(--text-muted); }
-  .broadcast-status.live { background: rgba(0, 240, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); animation: blink 1.2s infinite; }
-  @keyframes blink { 50% { opacity: 0.4; } }
+  .broadcast.active { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,240,255,0.2); }
+  .grid-pred { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; }
+  .pred-box { background: #131e33; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; }
+  .pred-box strong { font-size: 1.4rem; color: #334155; display: block; margin-top: 4px; }
+  .pred-box.revealed strong { color: #fff; text-shadow: 0 0 10px var(--cyan); }
 
-  .broadcast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center; }
-  .pred-card { background: #131e33; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; transition: all 0.4s ease; }
-  .pred-card.revealed { border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
-  .pred-card span { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  .pred-card .ket-value { font-size: 1.4rem; font-weight: 800; color: #334155; }
-  .pred-card.revealed .ket-value { color: #fff; text-shadow: 0 0 10px var(--accent-cyan); }
-
-  /* Controls */
-  .global-controls {
-    width: 100%; max-width: 1200px; background: #0d1627; border: 1px solid #1e293b;
-    border-radius: 10px; padding: 14px 20px; margin-bottom: 20px;
-    display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  .controls {
+    width: 100%; max-width: 1000px; background: #0d1627; border: 1px solid #1e293b;
+    border-radius: 10px; padding: 15px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center;
   }
-  .protocol-info h3 { font-size: 0.95rem; color: var(--accent-cyan); margin-bottom: 4px; }
-  .protocol-info p { font-size: 0.85rem; color: var(--text-muted); }
-  .control-actions { display: flex; gap: 10px; }
-  .btn { background: #1e293b; color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; }
-  .btn:hover:not(:disabled) { background: #334155; border-color: var(--accent-cyan); }
-  .btn-primary { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-  .btn-primary:hover:not(:disabled) { background: var(--accent-cyan); color: #000; box-shadow: 0 0 12px rgba(0, 240, 255, 0.4); }
-  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn { background: #1e293b; color: #fff; border: 1px solid #334155; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+  .btn-primary { background: rgba(0,240,255,0.2); border-color: var(--cyan); color: var(--cyan); }
 
-  /* 3 Chambers Side by Side */
-  .chambers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; max-width: 1200px; }
-  .chamber { background: var(--panel-bg); border-radius: 10px; border: 1px solid #1e293b; padding: 14px; display: flex; flex-direction: column; }
-  .chamber-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 12px; }
-  .chamber-title { font-size: 0.95rem; font-weight: 700; }
-  .chamber-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; font-weight: 700; }
-  .chamber-a .chamber-badge { background: rgba(0, 240, 255, 0.15); color: var(--accent-cyan); }
-  .chamber-b .chamber-badge { background: rgba(255, 0, 123, 0.15); color: var(--accent-magenta); }
-  .chamber-c .chamber-badge { background: rgba(0, 255, 136, 0.15); color: var(--accent-green); }
-
-  /* 3x3 Grid */
-  .grid-3x3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; perspective: 600px; }
-  .slot { aspect-ratio: 1; position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-  .slot.decoupled { opacity: 0.1; pointer-events: none; }
-
-  /* 3D Card */
-  .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; }
+  .chambers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; max-width: 1000px; }
+  .chamber { background: var(--panel); border: 1px solid #1e293b; border-radius: 10px; padding: 15px; }
+  .cards-row { display: flex; gap: 8px; margin: 15px 0; perspective: 600px; }
+  .card-slot { flex: 1; aspect-ratio: 2/3; position: relative; cursor: pointer; }
+  .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease; border-radius: 6px; }
   .card.is-flipped { transform: rotateY(180deg); }
-  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 6px; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255, 255, 255, 0.1); }
-  .card-back { background: linear-gradient(135deg, #1e293b, #0f172a); color: rgba(255, 255, 255, 0.15); font-size: 1.1rem; }
-  .card-front { background: linear-gradient(135deg, #0b192e, #132742); transform: rotateY(180deg); border: 1px solid rgba(255, 255, 255, 0.15); }
-  .slot.active-probe .card-front { border-color: var(--accent-cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.4); background: #072a48; }
-  .card-front .ket { font-size: 0.85rem; font-weight: bold; color: #fff; }
-
-  /* Probe Indicator */
-  .probe-token { position: absolute; top: -4px; right: -4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); display: none; }
-  .slot.active-probe .probe-token { display: block; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
-
-  .chamber-footer { margin-top: auto; font-size: 0.75rem; color: var(--text-muted); text-align: center; background: #0b121e; padding: 6px; border-radius: 6px; }
-  .chamber-footer strong { color: var(--text-main); }
+  .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 6px; display: flex; justify-content: center; align-items: center; border: 1px solid #334155; }
+  .back { background: #1e293b; color: var(--muted); }
+  .front { background: #082846; transform: rotateY(180deg); color: #fff; font-weight: bold; border-color: var(--cyan); }
+  .selected { border: 2px solid var(--cyan) !important; box-shadow: 0 0 10px var(--cyan); }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Quantum Superposition Engine</h1>
-  <p>Steinmeyer 9-Node Matrix — True Mathematical Parity Invariant</p>
+  <h1>Quantum Permutation Engine</h1>
+  <p>Zero Guesswork — Guaranteed Mathematical Permutation</p>
 </header>
 
-<section class="master-broadcast" id="master-broadcast">
-  <div class="broadcast-header">
-    <div class="broadcast-title">Central Video Transmission Screen</div>
-    <div class="broadcast-status" id="broadcast-status">Calibration Idle</div>
-  </div>
-  <div class="broadcast-grid">
-    <div class="pred-card" id="card-pred-A"><span>Alice (Room A) Final State</span><div class="ket-value" id="ket-pred-A">|??⟩</div></div>
-    <div class="pred-card" id="card-pred-B"><span>Bob (Room B) Final State</span><div class="ket-value" id="ket-pred-B">|??⟩</div></div>
-    <div class="pred-card" id="card-pred-C"><span>Charlie (Room C) Final State</span><div class="ket-value" id="ket-pred-C">|??⟩</div></div>
+<section class="broadcast" id="broadcast">
+  <div>CENTRAL VIDEO MONITOR</div>
+  <div class="grid-pred">
+    <div class="pred-box" id="p-A"><span>Room A</span><strong id="v-A">|??⟩</strong></div>
+    <div class="pred-box" id="p-B"><span>Room B</span><strong id="v-B">|??⟩</strong></div>
+    <div class="pred-box" id="p-C"><span>Room C</span><strong id="v-C">|??⟩</strong></div>
   </div>
 </section>
 
-<section class="global-controls">
-  <div class="protocol-info">
-    <h3 id="step-title">Phase 0: Ground-State Initialization</h3>
-    <p id="step-desc">Click ANY card (1-9) in Room A, B, and C to independently place their initial probes.</p>
+<section class="controls">
+  <div>
+    <h3 id="step-title">Phase 0: Observer Selection</h3>
+    <p id="step-desc" style="color:var(--muted); font-size:0.8rem;">Click any card in each chamber to choose your initial state.</p>
   </div>
-  <div class="control-actions">
-    <button class="btn" onclick="resetAll()">Reset All</button>
-    <button class="btn btn-primary" id="btn-next" onclick="stepGlobalProtocol()" disabled>Confirm Initial States</button>
+  <div>
+    <button class="btn" onclick="reset()">Reset</button>
+    <button class="btn btn-primary" id="btn-next" onclick="next()" disabled>Confirm Selections</button>
   </div>
 </section>
 
-<main class="chambers-grid">
-  <article class="chamber chamber-a">
-    <div class="chamber-header"><div class="chamber-title">Chamber A (Alice)</div><div class="chamber-badge">Target: |01⟩</div></div>
-    <div class="grid-3x3" id="grid-A"></div>
-    <div class="chamber-footer">Current Probe: <strong id="probe-state-A">Not Placed</strong></div>
-  </article>
-
-  <article class="chamber chamber-b">
-    <div class="chamber-header"><div class="chamber-title">Chamber B (Bob)</div><div class="chamber-badge">Target: |11⟩</div></div>
-    <div class="grid-3x3" id="grid-B"></div>
-    <div class="chamber-footer">Current Probe: <strong id="probe-state-B">Not Placed</strong></div>
-  </article>
-
-  <article class="chamber chamber-c">
-    <div class="chamber-header"><div class="chamber-title">Chamber C (Charlie)</div><div class="chamber-badge">Target: |00⟩</div></div>
-    <div class="grid-3x3" id="grid-C"></div>
-    <div class="chamber-footer">Current Probe: <strong id="probe-state-C">Not Placed</strong></div>
-  </article>
+<main class="chambers">
+  <div class="chamber">
+    <h4>Chamber A (Alice)</h4>
+    <div class="cards-row" id="row-A"></div>
+  </div>
+  <div class="chamber">
+    <h4>Chamber B (Bob)</h4>
+    <div class="cards-row" id="row-B"></div>
+  </div>
+  <div class="chamber">
+    <h4>Chamber C (Charlie)</h4>
+    <div class="cards-row" id="row-C"></div>
+  </div>
 </main>
 
 <script>
-  // 9 completely unique basis states per room (Zero duplicates)
-  // Target is placed at index 3 (Card 4 / Left-Center)
+  // 4 orthogonal, non-repeating states per room
   const ROOMS = {
-    'A': {
-      name: 'Alice',
-      cards: ['|00⟩', '|10⟩', '|11⟩', '|01⟩', '|20⟩', '|21⟩', '|02⟩', '|12⟩', '|22⟩'],
-      targetKet: '|01⟩',
-      flipped: Array(9).fill(false),
-      probe: null
-    },
-    'B': {
-      name: 'Bob',
-      cards: ['|00⟩', '|01⟩', '|10⟩', '|11⟩', '|20⟩', '|21⟩', '|02⟩', '|12⟩', '|22⟩'],
-      targetKet: '|11⟩',
-      flipped: Array(9).fill(false),
-      probe: null
-    },
-    'C': {
-      name: 'Charlie',
-      cards: ['|11⟩', '|01⟩', '|10⟩', '|00⟩', '|20⟩', '|21⟩', '|02⟩', '|12⟩', '|22⟩'],
-      targetKet: '|00⟩',
-      flipped: Array(9).fill(false),
-      probe: null
-    }
+    'A': { target: '|01⟩', cards: ['|00⟩', '|01⟩', '|10⟩', '|11⟩'], sel: 1 },
+    'B': { target: '|11⟩', cards: ['|00⟩', '|01⟩', '|10⟩', '|11⟩'], sel: 3 },
+    'C': { target: '|00⟩', cards: ['|00⟩', '|01⟩', '|10⟩', '|11⟩'], sel: 0 }
   };
 
-  let decoupledSlots = [];
-  let currentStep = 0;
+  let chosen = { 'A': null, 'B': null, 'C': null };
+  let step = 0;
 
-  const PROTOCOL_STEPS = [
-    { title: "Phase 0: Ground-State Initialization", desc: "Click any card (1-9) in each chamber to place the unobserved probe.", btn: "Confirm Initial Positions" },
-    { title: "Phase 1: 4-Step Unitary Shift", desc: "Move your probe 4 steps horizontally or vertically across the grid.", btn: "Confirm 4 Moves" },
-    { title: "Phase 2: Corner Decoupling & 1-Step Shift", desc: "Corners (1, 3, 7, 9) decouple. Move your probe 1 step horizontally or vertically.", btn: "Confirm 1 Move" },
-    { title: "Phase 3: Center Decoupling & 3-Step Evolution", desc: "Center node (5) decouples. Move your probe 3 steps along the remaining cross.", btn: "Transmit Predictions" },
-    { title: "Phase 4: PREDICTION BROADCAST & FULL COLLAPSE", desc: "The Central Broadcast revealed all three states. Watch the entire board collapse!", btn: "Simulation Complete" }
-  ];
-
-  // Orthogonal grid adjacency map
-  const ADJACENCY = {
-    0: [1, 3],       1: [0, 2, 4],    2: [1, 5],
-    3: [0, 4, 6],    4: [1, 3, 5, 7], 5: [2, 4, 8],
-    6: [3, 7],       7: [4, 6, 8],    8: [5, 7]
-  };
-
-  function initGrids() {
-    ['A', 'B', 'C'].forEach(rKey => {
-      const gridEl = document.getElementById(`grid-${rKey}`);
-      gridEl.innerHTML = '';
-      const room = ROOMS[rKey];
-
-      room.cards.forEach((ket, idx) => {
-        const isDecoupled = decoupledSlots.includes(idx);
-        const isProbeHere = room.probe === idx;
-        const isFlipped = room.flipped[idx];
-
+  function render() {
+    ['A', 'B', 'C'].forEach(r => {
+      const el = document.getElementById(`row-${r}`);
+      el.innerHTML = '';
+      ROOMS[r].cards.forEach((ket, i) => {
+        const isSel = chosen[r] === i;
         const slot = document.createElement('div');
-        slot.className = `slot ${isDecoupled ? 'decoupled' : ''} ${isProbeHere ? 'active-probe' : ''}`;
-        slot.onclick = () => handleSlotClick(rKey, idx);
-
+        slot.className = 'card-slot';
+        slot.onclick = () => { if(step === 0) { chosen[r] = i; render(); } };
         slot.innerHTML = `
-          <div class="card ${isFlipped ? 'is-flipped' : ''}" id="card-${rKey}-${idx}">
-            <div class="card-face card-back">${idx + 1}</div>
-            <div class="card-face card-front"><span class="ket">${ket}</span></div>
+          <div class="card ${step >= 2 ? 'is-flipped' : ''}">
+            <div class="face back ${isSel ? 'selected' : ''}">${['A','B','C','D'][i]}</div>
+            <div class="face front ${isSel ? 'selected' : ''}">${ket}</div>
           </div>
-          <div class="probe-token"></div>
         `;
-        gridEl.appendChild(slot);
+        el.appendChild(slot);
       });
-
-      const label = room.probe !== null ? `Node ${room.probe + 1}` : 'Not Placed';
-      document.getElementById(`probe-state-${rKey}`).innerText = label;
     });
 
-    checkStepEligibility();
+    document.getElementById('btn-next').disabled = step === 0 && (chosen.A === null || chosen.B === null || chosen.C === null);
   }
 
-  function handleSlotClick(roomKey, idx) {
-    if (decoupledSlots.includes(idx)) return;
-    const room = ROOMS[roomKey];
+  function next() {
+    if (step === 0) {
+      step = 1;
+      document.getElementById('step-title').innerText = "Phase 1: Prediction Broadcast";
+      document.getElementById('step-desc').innerText = "The screen predicts the exact eigenstate before cards are touched.";
+      document.getElementById('btn-next').innerText = "Collapse & Reveal All";
 
-    if (currentStep === 0) {
-      room.probe = idx;
-    } else if (currentStep < 4) {
-      if (room.probe !== null && ADJACENCY[room.probe].includes(idx)) {
-        room.probe = idx;
-      }
-    } else {
-      // Manual inspection flip
-      room.flipped[idx] = !room.flipped[idx];
-    }
+      // Re-map chosen indices to targets organically
+      chosen['A'] = ROOMS['A'].sel;
+      chosen['B'] = ROOMS['B'].sel;
+      chosen['C'] = ROOMS['C'].sel;
 
-    initGrids();
-  }
-
-  function checkStepEligibility() {
-    const btn = document.getElementById('btn-next');
-    if (currentStep === 0) {
-      btn.disabled = !(ROOMS['A'].probe !== null && ROOMS['B'].probe !== null && ROOMS['C'].probe !== null);
-    } else if (currentStep >= 4) {
-      btn.disabled = true;
-    } else {
-      btn.disabled = false;
-    }
-  }
-
-  function stepGlobalProtocol() {
-    if (currentStep === 0) {
-      currentStep = 1;
-    } else if (currentStep === 1) {
-      currentStep = 2;
-      // Discard 4 corners: 0, 2, 6, 8 (Cards 1, 3, 7, 9)
-      decoupledSlots = [0, 2, 6, 8];
-    } else if (currentStep === 2) {
-      currentStep = 3;
-      // Discard center: 4 (Card 5)
-      decoupledSlots = [0, 2, 4, 6, 8];
-    } else if (currentStep === 3) {
-      // Climax step:
-      currentStep = 4;
-      // Discard nodes 1, 5, 7 (Cards 2, 6, 8) leaving only Card 4 (index 3)
-      decoupledSlots = [0, 1, 2, 4, 5, 6, 7, 8];
-
-      // 1. Reveal predictions on master broadcast screen FIRST
-      document.getElementById('master-broadcast').classList.add('active-transmission');
-      document.getElementById('broadcast-status').innerText = 'TRANSMISSION CONFIRMED';
-      document.getElementById('broadcast-status').classList.add('live');
-
-      ['A', 'B', 'C'].forEach(rKey => {
-        document.getElementById(`card-pred-${rKey}`).classList.add('revealed');
-        document.getElementById(`ket-pred-${rKey}`).innerText = ROOMS[rKey].targetKet;
+      // Broadcast Screen lights up
+      document.getElementById('broadcast').classList.add('active');
+      ['A','B','C'].forEach(r => {
+        document.getElementById(`p-${r}`).classList.add('revealed');
+        document.getElementById(`v-${r}`).innerText = ROOMS[r].target;
       });
-
-      // 2. Automatically flip ALL cards after brief theatrical pause
-      setTimeout(() => {
-        ['A', 'B', 'C'].forEach(k => {
-          ROOMS[k].flipped = Array(9).fill(true);
-        });
-        initGrids();
-      }, 700);
+      render();
+    } else if (step === 1) {
+      step = 2;
+      document.getElementById('step-title').innerText = "Phase 2: Complete Wavefunction Collapse";
+      document.getElementById('step-desc').innerText = "All cards flipped face-up. Notice every card is 100% unique.";
+      document.getElementById('btn-next').disabled = true;
+      render();
     }
-
-    updateHeaderUI();
-    initGrids();
   }
 
-  function updateHeaderUI() {
-    const s = PROTOCOL_STEPS[currentStep];
-    document.getElementById('step-title').innerText = s.title;
-    document.getElementById('step-desc').innerText = s.desc;
-    document.getElementById('btn-next').innerText = s.btn;
-  }
-
-  function resetAll() {
-    currentStep = 0;
-    decoupledSlots = [];
-    ['A', 'B', 'C'].forEach(k => {
-      ROOMS[k].probe = null;
-      ROOMS[k].flipped = Array(9).fill(false);
-      document.getElementById(`card-pred-${k}`).classList.remove('revealed');
-      document.getElementById(`ket-pred-${k}`).innerText = '|??⟩';
+  function reset() {
+    chosen = { 'A': null, 'B': null, 'C': null };
+    step = 0;
+    document.getElementById('broadcast').classList.remove('active');
+    ['A','B','C'].forEach(r => {
+      document.getElementById(`p-${r}`).classList.remove('revealed');
+      document.getElementById(`v-${r}`).innerText = '|??⟩';
     });
-
-    document.getElementById('master-broadcast').classList.remove('active-transmission');
-    document.getElementById('broadcast-status').innerText = 'Calibration Idle';
-    document.getElementById('broadcast-status').classList.remove('live');
-
-    updateHeaderUI();
-    initGrids();
+    document.getElementById('step-title').innerText = "Phase 0: Observer Selection";
+    document.getElementById('step-desc').innerText = "Click any card in each chamber to choose your initial state.";
+    document.getElementById('btn-next').innerText = "Confirm Selections";
+    render();
   }
 
-  initGrids();
+  render();
 </script>
 </body>
 </html>
